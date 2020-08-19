@@ -1,27 +1,40 @@
-var express =require('express')
-var app=express();
+var express =require('express')    // importing express
+var app=express();                 // created object of express
 var myrouter =express.Router();
+const RegExp=require("xregexp");    // exretnal module  xregexp  to change the values 
+
 myrouter.use(express.json())
 
-myrouter.post("/",(req,res)=>
+
+myrouter.post("/",(req,res)=>               // router implementation
 {
+   input=req.body;   // getting the input from postman console
+    value_replace(input.payload.value);      // calling method   value_replace
+    res.send(input.payload);
+})
+
+
+function value_replace(input_value) {       
+      
+   for(x in input_value){
+     if(input_value[x].valueType=='string')       // if string changing the value with referenced data 
+     {
+       for(ref in input.referenceData)
+         {
+         if(input_value[x].value.match(RegExp(`${ref}`)))
+               {
+                input_value[x].value=input_value[x].value.replace(RegExp(`{${ref}}`),input.referenceData[ref]);
+               }
+         }
    
-var i_data=(req.body);
+    }
+   else
+   {
+        value_replace(input_value[x]["value"]);   // if it is array then changing the referenced data
+   }
+ }
+}
 
-var original_output=JSON.stringify(i_data.payload);
 
-Object.keys(i_data.referenceData).
-forEach(key =>
-{
-   var change =`{${key}}`;
-
-   var output = new RegExp(change,"g");
-
-   original_output = original_output.replace(output,i_data.referenceData[key])
-})
-
-var result= JSON.parse(original_output);
-res.send(result);
-})
 
 module.exports=myrouter;
